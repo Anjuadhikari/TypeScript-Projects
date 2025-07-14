@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Select from "./Select";
+
 function App() {
   const options = [
     { label: "React", value: "react" },
@@ -10,27 +11,27 @@ function App() {
     { label: "Backbone", value: "backbone" },
     { label: "Lit", value: "lit" },
     { label: "Preact", value: "preact" },
-    { label: "Alpine", value: "alpine" },
-    { label: "Solid", value: "solid" },
+    { label: "Alpine.js", value: "alpine" },
+    { label: "Solid.js", value: "solid" },
+    { label: "Inferno", value: "inferno" },
+    { label: "Mithril", value: "mithril" },
+    { label: "Stimulus", value: "stimulus" },
   ];
-  const [selectedOption, setSelectedOption] = useState(options[0]);
+
+  const [selected, setSelected] = useState(options[0]);
+
   return (
     <div>
-      <h1 style={{ textAlign: "center" }}>Choose a Framework</h1>
-      <select
-        value={selectedOption.value}
-        onChange={(e) =>
-          setSelectedOption(
-            options.find((option) => option.value === e.target.value) || options[0]
-          )
-        }
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      <h2 style={{ textAlign: "center", marginTop: "5px" }}>
+        Choose a Framework
+      </h2>
+      <Select
+        options={options}
+        value={selected}
+        onChange={(option) => {
+          if (option) setSelected(option);
+        }}
+      />
     </div>
   );
 }
