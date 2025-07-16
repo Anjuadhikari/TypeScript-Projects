@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { words } from "./word";
 import WordDisplay from "./components/wordDisplay";
+import Keyboard from "./components/keyboard";
+import HangmanDrawing from "./components/Hangman";
 
 function App() {
-  const [selectedWord, setSelectedWord] = useState<string>("");
+  const [selectedWord, setSelectedWord] = useState("");
   const [guessedLetters, setGuessedLetters] = useState<string[]>([]);
 
   useEffect(() => {
@@ -16,28 +18,50 @@ function App() {
       setGuessedLetters((prev) => [...prev, letter]);
     }
   };
+  const incorrectLetters = guessedLetters.filter(
+    (letter) => !selectedWord.includes(letter)
+  );
+
+  const isWinner = selectedWord
+    .split("")
+    .every((letter) => guessedLetters.includes(letter));
+
+  const isLoser = incorrectLetters.length >= 6;
+
+  const restartGame = () => {
+    const randomWord = words[Math.floor(Math.random() * words.length)];
+    setSelectedWord(randomWord);
+    setGuessedLetters([]);
+  };
 
   return (
-    <main className="flex flex-col items-center justify-center h-screen bg-pink-50 text-gray-600 p-6">
-      <h1 className="text-4xl font-bold mb-4">Hangman Game</h1>
+    <main className="min-h-screen bg-pink-50 bg-cover bg-center text-gray-200 flex flex-col items-center py-20 px-4">
+      <h1 className="text-6xl font-bold mb-10 drop-shadow-lg text-pink-200 font-serif">
+        🌸 Hangman Garden
+      </h1>
+
       <WordDisplay word={selectedWord} guessedLetters={guessedLetters} />
 
-      <div className="grid grid-cols-7 gap-2 mt-8">
-        {"abcdefghijklmnopqrstuvwxyz".split("").map((letter) => (
-          <button
-            key={letter}
-            onClick={() => handleGuess(letter)}
-            disabled={guessedLetters.includes(letter)}
-            className={`px-4 py-2 border rounded ${
-              guessedLetters.includes(letter)
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            {letter}
-          </button>
-        ))}
-      </div>
+      <Keyboard guessedLetters={guessedLetters} onGuess={handleGuess} />
+      <HangmanDrawing wrongGuesses={incorrectLetters.length} />
+
+      {isWinner && (
+        <p className="text-3xl font-bold text-green-600 mt-6">🎉 You Win!</p>
+      )}
+      {isLoser && (
+        <p className="text-3xl font-bold text-red-600 mt-6">
+          💔 You lost! The word was:{" "}
+          <span className="uppercase">{selectedWord}</span>
+        </p>
+      )}
+      {(isWinner || isLoser) && (
+        <button
+          onClick={restartGame}
+          className="mt-6 px-6 py-3 bg-lavender text-white font-bold rounded-lg hover:bg-plum transition"
+        >
+          🔄 Play Again
+        </button>
+      )}
     </main>
   );
 }
