@@ -6,18 +6,32 @@ import "./App.css";
 import { useState } from "react";
 
 export default function App() {
-  const [FullName, setFullName] = useState("");
-  const [Email, setEmail] = useState("");
-  const [Password, setPassword] = useState("");
-  const [ConfirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
 
   const submitHandler = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (password.length<8){
+      setError("Password must be at least 8 characters long");
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    if (!/[!@#$%^&*()<>,.]/.test(password))
+    {
+setError("Password must contain at least one special character");
+      return;
+    }
+     setError("");
     console.log("Form submitted");
-    console.log("Full Name:", FullName);
-    console.log("Email:", Email);
-    console.log("Password:", Password);
+    console.log("Full Name:", fullName);
+    console.log("Email:", email);
+    console.log("Password:", password);
     setFullName("");
     setEmail("");
     setPassword("");
@@ -38,7 +52,8 @@ export default function App() {
             </label>
             <input
               type="text"
-              value={FullName}
+              required
+              value={fullName}
               onChange={(e) => {
                 setFullName(e.target.value);
               }}
@@ -53,7 +68,8 @@ export default function App() {
               Email Address
             </label>
             <input
-              value={Email}
+              value={email}
+              required
               type="email"
               onChange={(e) => {
                 setEmail(e.target.value);
@@ -70,7 +86,8 @@ export default function App() {
             </label>
             <input
               type="password"
-              value={Password}
+              value={password}
+              required
               onChange={(e) => {
                 setPassword(e.target.value);
               }}
@@ -86,7 +103,8 @@ export default function App() {
             </label>
             <input
               type="password"
-              value={ConfirmPassword}
+              value={confirmPassword}
+              required
               placeholder="••••••••"
               onChange={(e) => {
                 setConfirmPassword(e.target.value);
@@ -94,6 +112,9 @@ export default function App() {
               className="w-full border border-pink-200 focus:ring-2 focus:ring-pink-300 focus:outline-none rounded-lg px-4 py-2"
             />
           </div>
+          {error &&(
+            <p className="text-red-500 font-medium text-center ">{error}</p>
+          )}
 
           {/* Submit Button */}
           <button
