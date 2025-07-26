@@ -31,10 +31,30 @@ function user() {
   const form = useForm<userForm>({
     resolver: zodResolver(userSchema),
   });
+function handleSubmit(data: userForm) {
+  const result = userSchema.safeParse(data);
+  if(!result.success) {
+    console.error("Validation failed:", result.error);
+  }
+    console.log("Validation succeeded:", data);
+}
   return (
-    <div>
+    <form onSubmit={form.handleSubmit(handleSubmit)}>
       <h1 className="text-2xl font-bold">User Validation</h1>
-    </div>
+      {/* Example usage of form fields */}
+      <input {...form.register("firstName")} placeholder="First Name" />
+      <input {...form.register("email")} placeholder="Email" />
+      <input {...form.register("profileUrl")} placeholder="Profile URL" />
+      <input type="number" {...form.register("age", { valueAsNumber: true })} placeholder="Age" />
+      <input {...form.register("friends.0")} placeholder="Friend 1" />
+      <input {...form.register("friends.1")} placeholder="Friend 2" />
+      <input {...form.register("friends.2")} placeholder="Friend 3" />
+      <label>
+        Active:
+        <input type="checkbox" {...form.register("isActive")} />
+      </label>
+      <button type="submit">Submit</button>
+    </form>
   );
 }
 
