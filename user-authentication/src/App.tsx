@@ -1,26 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.css";
-import { useState } from "react";
 import { toast, Bounce, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+type User = {
+  fullName: string;
+  email: string;
+  password: string;
+};
+
 export default function App() {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
   const [error, setError] = useState("");
-
-
-  type User = { fullName: string; email: string; password: string };
   const [users, setUsers] = useState<User[]>([]);
 
-
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const submitHandler = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation with early return on errors
+    const { fullName, email, password, confirmPassword } = form;
+
+    // Validation
     if (password.length < 8) {
       setError("Password must be at least 8 characters long");
       return;
@@ -41,23 +54,21 @@ export default function App() {
       return;
     }
 
-    setUsers([...users, { fullName, email, password }]);
+    // All validation passed
+    setError("");
 
+    const newUser: User = { fullName, email, password };
+    setUsers((prev) => [...prev, newUser]);
 
-    // If all validation passes
-    setError(""); // clear previous errors
-    console.log("Form submitted");
-    console.log("Full Name:", fullName);
-    console.log("Email:", email);
-    console.log("Password:", password);
+    console.log("Form submitted", newUser);
 
-    // Clear input fields
-    setFullName("");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
+    setForm({
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
 
-    // Show toast notification
     toast.success("Login Successful!", {
       position: "top-right",
       autoClose: 3000,
@@ -68,28 +79,28 @@ export default function App() {
       theme: "light",
       transition: Bounce,
       className: "bg-pink-100 text-pink-800 font-semibold",
-   
       progressClassName: "bg-pink-700",
     });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pink-50 px-4">
+    <div className="min-h-screen flex items-start justify-center bg-pink-50 px-4 py-10">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
         <h2 className="text-2xl font-bold text-center text-pink-500 mb-6">
           Create Account
         </h2>
         <form onSubmit={submitHandler} className="space-y-5">
-          {/* Name */}
+          {/* Full Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Full Name
             </label>
             <input
               type="text"
+              name="fullName"
+              value={form.fullName}
+              onChange={handleChange}
               required
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
               placeholder="Enter your name"
               className="w-full border border-pink-200 focus:ring-2 focus:ring-pink-300 focus:outline-none rounded-lg px-4 py-2"
             />
@@ -101,10 +112,11 @@ export default function App() {
               Email Address
             </label>
             <input
-              value={email}
-              required
               type="email"
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              required
               placeholder="you@example.com"
               className="w-full border border-pink-200 focus:ring-2 focus:ring-pink-300 focus:outline-none rounded-lg px-4 py-2"
             />
@@ -117,9 +129,10 @@ export default function App() {
             </label>
             <input
               type="password"
-              value={password}
+              name="password"
+              value={form.password}
+              onChange={handleChange}
               required
-              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className="w-full border border-pink-200 focus:ring-2 focus:ring-pink-300 focus:outline-none rounded-lg px-4 py-2"
             />
@@ -132,18 +145,17 @@ export default function App() {
             </label>
             <input
               type="password"
-              value={confirmPassword}
+              name="confirmPassword"
+              value={form.confirmPassword}
+              onChange={handleChange}
               required
               placeholder="••••••••"
-              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full border border-pink-200 focus:ring-2 focus:ring-pink-300 focus:outline-none rounded-lg px-4 py-2"
             />
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <p className="text-red-500 font-medium text-center">{error}</p>
-          )}
+          {/* Error message */}
+          {error && <p className="text-red-500 font-medium text-center">{error}</p>}
 
           {/* Submit Button */}
           <button
@@ -154,31 +166,31 @@ export default function App() {
           </button>
         </form>
 
-        {/* Already have account */}
+        {/* Already have an account */}
         <p className="text-center text-sm text-gray-500 mt-4">
           Already have an account?{" "}
           <a className="text-pink-500 hover:underline cursor-pointer">Login</a>
         </p>
       </div>
 
-      {/* Toast Container at global level */}
-      <ToastContainer />
-    {/* Example: Render a list of registered users */}
-    {users.length > 0 && (
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold text-pink-600 mb-2">Registered Users:</h3>
-        <ul className="list-disc list-inside text-gray-700">
-          {users.map((element, index) => (
-            <React.Fragment key={index}>
-              <li>
-                {element.fullName} 
+      {/* Show registered users */}
+      {users.length > 0 && (
+        <div className="ml-10 mt-2 bg-white rounded-xl shadow-md p-4 max-w-sm">
+          <h3 className="text-lg font-semibold text-pink-600 mb-2">
+            Registered Users:
+          </h3>
+          <ul className="space-y-2">
+            {users.map((user, index) => (
+              <li key={index} className="bg-pink-100 rounded-lg p-2">
+                <p className="text-pink-800 font-bold">{user.fullName}</p>
+                <p className="text-pink-700 text-sm">{user.email}</p>
               </li>
-              <li>({element.email})</li>
-            </React.Fragment>
-          ))}
-        </ul>
-      </div>
-    )}
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <ToastContainer />
     </div>
   );
 }
